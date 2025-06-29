@@ -40,6 +40,10 @@ You should always begin by loading all necessary packages towards the beginning 
 
 # Loading package(s)
 library(tidyverse)
+library(ggthemes)
+library(ggridges)
+library(scales)
+library(dplyr)
 ```
 
 ## Datasets
@@ -65,7 +69,9 @@ There are 3 particularly important components to our template for building a gra
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+**geom:** is short for geometric object in ggplot2 and is used to visual represent data in a plot, such as a line graph, bar chart, scatter plot, etc.
+
+**aesthetic mapping:** connects a variable in a dataset to a visual property on the plot using the aes() fuction and control properties such as x, y position, color, size, shape, alpha, and linetypes
 :::
 
 ### Exercise 2
@@ -75,7 +81,42 @@ Construct a scatterplot of `hwy` versus `cty` using the `mpg` dataset. What is t
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+The initial plot showed a grid-like pattern and because the data being plotted was integer values indicated that this plot was suffering from overplotting where there are likely several same combinations of data and can often hide the true density of the data
+
+The solution I tried was using jitter, to add a little bit of random noise to offset the overlapping points a little allowing to allow for the overall distribution and density of the data to become a little clearer though it does make each point slightly less accurate in position.
+
+The second solution I tried was changing the transparency of the points using alpha, allowing for visualization of the density of data points. In this case, the darker the points the more data points being represented at that point the lighter points representing less data points being represented at that point. This keeps the accurate positioning of the data points.
+
+```{r}
+# load libraries
+library(tidyverse)
+library(ggthemes)
+
+# first taking a look at the data
+glimpse(mpg)
+
+# scatter plot of hwy vs cty
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty)
+) +
+  geom_point()
+
+# improving scatter plot of hwy vs cty with jitter
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty)
+) +
+  geom_jitter()
+
+# improving scatter plot of hwy vs cty by changing transparency with alpha
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty)
+) +
+  geom_point(alpha = 1/3)
+
+```
 :::
 
 ### Exercise 3
@@ -87,7 +128,35 @@ Now construct a scatterplot of `hwy` versus `cty`. Set the color of the points t
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+```{r}
+# scatterplot of hwy vs cty, color set by drv
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty, color = drv)
+) +
+  geom_point()
+
+# scatterplot of hwy vs cty, faceted by drv with favorite color
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty, color = drv)
+) +
+  geom_point(color = "navy") +
+  facet_wrap(~ drv, ncol = 3)
+
+# scatterplot of hwy vs cty, faceted by drv each with different colors
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty, color = drv) # map color to drv
+) +
+  geom_point() +
+  facet_wrap(~ drv) +
+  scale_color_manual(values = c("4" = "steelblue",      # manually assign colors
+                                "f" = "darkorange", 
+                                "r" = "forestgreen")) +
+  labs(color = "Drive Type") # renaming the legend title
+
+```
 :::
 
 What are the advantages to using faceting instead of the color aesthetic? What are the disadvantages? How might the balance change if you had a larger dataset?
@@ -95,7 +164,11 @@ What are the advantages to using faceting instead of the color aesthetic? What a
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+Faceting provides can provide clarity within each category while color allows for easier comparison between categories on a shared plot leaving the choice as a trade-off. Faceting is better at showing each category's unique data distribution by eliminating overplotting between the groups, though this separation makes it harder to compare specific data points directly. Conversely, using color on a shared plot allows for easy point-for-point comparison, but its utility is quickly compromised by overplotting, which can obscure the data's true density.
+
+This balance shifts significantly depending on how a data set is "larger." If the data set is large due to a high number of data points, the advantage moves toward faceting. Severe overplotting would render a single colored plot unreadable, while faceting maintains clarity for each group's underlying pattern, while noting that overplotting can still occur within each facet, which would still require other techniques like transparency or jitter.
+
+However, if the dataset is large due to a high number of categories, faceting can then start to get out of hand. Displaying too many facets, such as 20 or more can lead to cognitive overload and makes each plot too small to be useful. At this point, it might be beneficial to explore other strategies of representing the data.
 :::
 
 ### Exercise 4
@@ -105,7 +178,43 @@ Construct a scatterplot of `hwy` vs `cty`. Next, map a third numerical variable 
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+Received the following error for the plot asking to set the third numerical variable by shape so have included this {r code-to-show, eval=FALSE} in that code block so that the notebook can render properly.\
+\
+**Error in \`geom_point()\`:** ! Problem while computing aesthetics. ℹ Error occurred in the 1st layer. **Caused by error in \`scale_f()\`:** ! A continuous variable cannot be mapped to the shape aesthetic. ℹ Choose a different aesthetic or use \`scale_shape_binned()\`.
+
+```{r}
+# scatterplot of hwy vs cty
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty)
+) +
+  geom_point()
+
+# scatterplot of hwy vs cty, color set by cyl
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty, color = cyl)
+) +
+  geom_point()
+
+# scatterplot of hwy vs cty, size set by cyl
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty, size = cyl)
+) +
+  geom_point()
+```
+
+```{r code-to-show, eval=FALSE}
+
+# for the code to be rendered to html but is not run because error with setting shape to numerical value causes error and will not allow notebook to render properly, see above for error message
+# scatterplot of hwy vs cty, shape set by cyl
+ggplot(
+  data = mpg,
+  mapping = aes(x = hwy, y = cty, shape = cyl)
+) +
+  geom_point()
+```
 :::
 
 How do the aesthetics behave differently for categorical versus numerical variables? In other words, which variable types (numeric/categorical) are appropriate to match to which aesthetics (size/shape/color)?
@@ -113,7 +222,9 @@ How do the aesthetics behave differently for categorical versus numerical variab
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+The color aesthetic is flexible, creating a continuous gradient for numerical data and distinct hues for categorical data.
+
+In contrast, size and shape are more specialized. Size should only be used for numerical variables, as its visual weight implies a quantitative scale. Shape distinguishes between distinct groups and is for categorical variables, but as I discovered when experimenting earlier, the ggplot2 default limit is 6 variables, which can be overcome by manually assigning more shapes with the scale_shape_manual() function.
 :::
 
 ### Exercise 5
@@ -123,7 +234,36 @@ Construct a histogram of the `carat` variable in the `diamonds` dataset. Adjust 
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+Created both two histograms, one with 0.05 bin width and the other with 0.1 bin width. Both are okay, but I personally would likely go with the 0.1 bin width histogram plot as it is a little less busy and still shows the overall trend pretty well.
+
+```{r}
+
+# taking a look at data
+glimpse(diamonds)
+
+# histogram of diamond carat sizes with 0.05 binwidth
+ggplot(
+  data = diamonds, mapping = aes(x = carat)) +
+  geom_histogram(binwidth = 0.05) +
+  labs(
+    title = "Distribution of Diamond Carat Sizes",
+    x = "Carat",
+    y = NULL,
+    caption = "Source: ggplot2 package"
+  )
+
+# histogram of diamond carat sizes with 0.1 binwidth
+ggplot(
+  data = diamonds, mapping = aes(x = carat)) +
+  geom_histogram(binwidth = 0.1) +
+  labs(
+    title = "Distribution of Diamond Carat Sizes",
+    x = "Carat",
+    y = NULL,
+    caption = "Source: ggplot2 package"
+  )
+
+```
 :::
 
 ### Exercise 6
@@ -133,7 +273,47 @@ Construct 2 appropriate graphics to show the relationship between `carat` and `c
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+Initially tried boxplot, but found the distribution hard to interpret so went with violin and ridgeplot that both better visualized the distribution of carat size and cut quality.
+
+```{r}
+
+#boxplot to display distribution shape of carat size and cut quality
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut, y = carat)) +
+  geom_boxplot() +
+  labs(
+    title = "Distribution of Diamond Carat by Cut Quality",
+    x = "Cut Quality",
+    y = "Carat"
+  )
+
+#violin plot to display distribution shape of carat size and cut quality
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut, y = carat, fill = cut)) +
+  geom_violin() +
+  scale_y_log10() +
+  theme(legend.position = "none") +
+  labs(
+    title = "Violin Plot of Diamond Carat by Cut",
+    x = "Cut Quality",
+    y = "Carat (log scale)"
+  )
+
+#ridgeplot using alternate method to display distribution of carat size and cut quality, using ggridges library loaded above
+ggplot(
+  data = diamonds,
+  mapping = aes(x = carat, y = cut, fill = cut)) +
+  geom_density_ridges() +
+  scale_x_log10() +
+  theme(legend.position = "none") +
+  labs(
+    title = "Ridgeline Plot of Diamond Carat by Cut",
+    x = "Carat (log scale",
+    y = "Cut Quality"
+  )
+```
 :::
 
 ### Exercise 7
@@ -143,7 +323,19 @@ Construct a barplot of `cut`. Add in `aes(fill = carat > 0.7)`.
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+```{r}
+# barplot of diamond cut stratified by carat > 0.7
+ggplot(
+  data = diamonds,
+  mapping = aes(x = cut, fill = carat > 0.7)) +
+  geom_bar() +
+  labs(
+    title = "Count of Diamonds by Cut, Filled by Carat Size",
+    x = "Cut Quality",
+    y = "Count",
+    fill = "Is Carat > 0.7?"
+)
+```
 :::
 
 ### Exercise 8
@@ -153,7 +345,11 @@ When would you use `facet_grid()` versus `facet_wrap()`? When using `facet_grid(
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+You would use facet_wrap() when you want to create subplots based on a single categorical variable. It arranges the plots in an optimal layout, "wrapping" them into multiple rows to best fit the space.
+
+You would use facet_grid() when you want to create a rigid grid of plots based on two categorical variables, with one variable defining the rows and the other defining the columns, which is useful for seeing every possible combinations of the two variables.
+
+When using facet_grid(), I believe the reason that it is recommended that you put the variable with more unique levels in the columns is because computer screens are usually wider than they are tall and is way to utilized the horizontal space more efficiently, creating a plot that is easier to read without excessive vertical scrolling.
 :::
 
 ## Case Study
@@ -174,7 +370,158 @@ This dataset was provided by [Swipestats.io](https://www.swipestats.io/).
 ::: {.callout-tip icon="false"}
 ## Solution
 
-YOUR SOLUTION HERE
+**Analysis of Messaging Behavior by User Gender**
+
+Our analysis reveals a clear correlation between messages sent and received, with the dynamic being fundamentally different based on user gender. This pattern appears to be strongly influenced by the dataset's significant gender imbalance, which consists of 1058 male users and 150 female users. The messaging data itself is highly right-skewed, with a median of 352 messages sent compared to a mean of 1607, indicating the activity for most users is low relative to a small group of highly active users. To accurately visualize this, a logarithmic scale was applied. As shown in the graphic below, male users, who form the larger group, tend to send substantially more messages than they receive, with their data clustering below the 1:1 reciprocity line. Conversely, female users, the smaller group, consistently receive far more messages than they send, with their data clustered above this line. A valuable next step would be to explore the relationship between swipe activity and match rates to confirm if this messaging imbalance stems from differing user strategies driven by these supply-and-demand dynamics.
+
+![](plots/tinder_messaging_by_gender.png)
+
+```{r}
+# --- SETUP ---
+
+# Load all necessary packages for the analysis.
+library(tidyverse)
+library(scales)
+
+```
+
+```{r}
+# --- DATA PREPARATION ---
+
+# Load the raw dataset also loaded above
+tinder_data <- read.csv("data/tinder_data.csv")
+
+# Clean the data by removing the single row where user_gender is NA observed when glimpsing data.
+tinder_data_cleaned <- tinder_data %>%
+  tidyr::drop_na(user_gender)
+```
+
+```{r}
+# --- EXPLORATORY ANAYLSIS - GENDER DISTRIBUTION---
+
+# Create bar chart to visualize the number of users in each gender category.
+plot_gender_counts <- tinder_data_cleaned %>%
+  count(user_gender) %>%
+  ggplot(aes(x = user_gender, y = n, fill = user_gender)) +
+  geom_col(show.legend = FALSE) +
+  geom_text(aes(label = n), vjust = -0.5) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    title = "User Count by Gender",
+    x = "Gender",
+    y = "Count"
+  )
+
+# Display the plot
+plot_gender_counts
+```
+
+```{r}
+# --- EXPLORATORY ANALYSIS - MESSAGES SENT/RECEIVED DISTRIBUTION ---
+
+# Print summary statistics for messages sent
+message("Summary Statistics for Messages Sent:")
+summary(tinder_data_cleaned$messages_sent)
+
+# Print summary statistics for messages received
+message("\nSummary Statistics for Messages Received:")
+summary(tinder_data_cleaned$messages_received)
+
+# Histogram of messages sent using a log scale for readability.
+plot_sent_dist <- ggplot(data = tinder_data_cleaned, aes(x = messages_sent + 1)) +
+  geom_histogram(binwidth = 0.5, fill = "#FD5068", alpha = 0.8) +
+  scale_x_log10(labels = label_number(big.mark = ",")) +
+  labs(
+    title = "Distribution of Messages Sent (Log Scale)",
+    x = "Number of Messages Sent",
+    y = "User Count"
+  )
+
+# Display the plot
+plot_sent_dist
+
+```
+
+```{r}
+# --- MULTIVARIATE ANALYSIS ---
+
+# Relationship between messages sent and received by gender
+final_plot <- ggplot(
+  data = tinder_data_cleaned,
+  mapping = aes(x = messages_sent + 1, y = messages_received + 1)
+) +
+  # Use points with transparency to mitigate overplotting
+  geom_point(alpha = 0.3) +
+  
+  # Add a y=x line for reference. Points above this line received more messages.
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "red") +
+  
+  # Add a linear trend line to show the average relationship for each gender
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  
+  # Use log scales to properly visualize the skewed data and format labels
+  scale_x_log10(labels = label_number(big.mark = ",")) +
+  scale_y_log10(labels = label_number(big.mark = ",")) +
+  
+  # Ensure a 1:1 aspect ratio for an accurate interpretation of the y=x line
+  coord_fixed() +
+  
+  # Separate the plot into panels for each gender
+  facet_wrap(~ user_gender) +
+  
+  # Add informative labels and a captions
+  labs(
+    title = "Messaging Dynamics on Tinder: Messages Received vs. Sent by Gender",
+    subtitle = "Points above the red dashed line indicate a user received more messages than they sent.",
+    x = "Messages Sent (Log Scale)",
+    y = "Messages Received (Log Scale)",
+    caption = "Source: Swipestats.io"
+  )
+
+# Display the final plot
+final_plot
+```
+
+```{r}
+# --- SAVE PLOTs ---
+
+# Define the output directory path before using it
+PLOTS_DIR <- "plots"
+
+# Ensure output directory exists before trying to save to it.
+if (!dir.exists(PLOTS_DIR)) {
+  dir.create(PLOTS_DIR)
+}
+
+# --- Save all plot objects to the directory ---
+
+# 1. Save the gender distribution bar chart
+ggsave(
+  filename = file.path(PLOTS_DIR, "gender_distribution.png"), 
+  plot = plot_gender_counts, 
+  width = 6, 
+  height = 5, 
+  dpi = 300
+)
+
+# 2. Save the messages sent histogram
+ggsave(
+  filename = file.path(PLOTS_DIR, "messages_sent_distribution.png"), 
+  plot = plot_sent_dist, 
+  width = 8, 
+  height = 5, 
+  dpi = 300
+)
+
+# 3. Save the final multivariate plot
+ggsave(
+  filename = file.path(PLOTS_DIR, "tinder_messaging_by_gender.png"), 
+  plot = final_plot, 
+  width = 10, 
+  height = 6, 
+  dpi = 300
+)
+```
 :::
 
 ## Graduate Challenge
