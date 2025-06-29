@@ -2,6 +2,7 @@
 title: "L01 Visualization"
 subtitle: "Foundations of Data Science with R (STAT 359)"
 author: "Christina Spaulding"
+
 format:
   html:
     toc: true
